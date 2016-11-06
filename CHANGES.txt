@@ -1,0 +1,3 @@
+0.1.0
+=====
+- Feature: Read weather data from the Valpas service
