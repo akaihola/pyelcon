@@ -12,8 +12,7 @@ def format_timestamp(t: str) -> str:
     timestamp = pd.Timestamp(t)
     if not timestamp.tz:
         timestamp = timestamp.tz_localize('UTC')
-    local_timestamp = timestamp.tz_convert('Europe/Helsinki')
-    return local_timestamp.strftime('%Y-%m-%dT%H:%M:%S%z')
+    return timestamp.strftime('%Y-%m-%dT%H:%M:%S%z')
 
 
 class Valpas:
@@ -63,13 +62,13 @@ class Valpas:
                     'endDate': format_timestamp(end)})
         self._get_response = response
         records = [(pd.Timestamp(m['timestamp']),
-                    pd.Timedelta(m['UTCOffset'], unit='h'),
+                    pd.Timedelta(m['utcoffset'], unit='h'),
                     m['values']['EL_ENERGY_CONSUMPTION#0']['value'])
                    for m in response.json()
                    if m['values']]
-        df = pd.DataFrame.from_records(records,
-                                       columns=['timestamp', 'utc_offset', 'value'])
-        return pd.Series(df.value.values, df.timestamp)
+        df = pd.DataFrame.from_records(
+            records, columns=['timestamp', 'utc_offset', 'value'])
+        return pd.Series(df.value.values, df.timestamp + df.utc_offset)
 
     def get_temperature(self, begin: str, end: str):
         if not self.logged_in:
@@ -87,10 +86,10 @@ class Valpas:
                     'endDate': format_timestamp(end)})
         self._get_response = response
         records = [(pd.Timestamp(m['timestamp']),
-                    pd.Timedelta(m['UTCOffset'], unit='h'),
+                    pd.Timedelta(m['utcoffset'], unit='h'),
                     m['values']['WEATHER_TEMPERATURE#0']['value'])
                    for m in response.json()
                    if m['values']]
-        df = pd.DataFrame.from_records(records,
-                                       columns=['timestamp', 'utc_offset', 'value'])
-        return pd.Series(df.value.values, df.timestamp)
+        df = pd.DataFrame.from_records(
+            records, columns=['timestamp', 'utc_offset', 'value'])
+        return pd.Series(df.value.values, df.timestamp + df.utc_offset)
