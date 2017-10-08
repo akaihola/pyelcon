@@ -3,11 +3,12 @@ import time
 import pandas as pd
 
 
-def milliepoch_utcnow():
+
+def milliepoch_utcnow() -> str:
     return str(int(time.time() * 1000))
 
 
-def format_timestamp(t):
+def format_timestamp(t: str) -> str:
     timestamp = pd.Timestamp(t)
     if not timestamp.tz:
         timestamp = timestamp.tz_localize('UTC')
@@ -44,7 +45,7 @@ class Valpas:
             params={'current': '', '_': milliepoch_utcnow()})
         self.customer_number = customer_number_response.json()['username']
 
-    def get_hourly_consumption(self, begin, end):
+    def get_hourly_consumption(self, begin: str, end: str) -> pd.Series:
         if not self.logged_in:
             self.log_in()
         url = ('https://www.fortum.com/valpas/api/meteringPoints/ELECTRICITY/{}/series'
@@ -67,7 +68,7 @@ class Valpas:
                                        columns=['timestamp', 'utc_offset', 'value'])
         return pd.Series(df.value.values, df.timestamp)
 
-    def get_temperature(self, begin, end):
+    def get_temperature(self, begin: str, end: str):
         if not self.logged_in:
             self.log_in()
         url = ('https://www.fortum.com/valpas/api/meteringPoints/WEATHER/{}/series'
