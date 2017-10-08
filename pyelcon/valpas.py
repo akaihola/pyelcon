@@ -26,6 +26,9 @@ class Valpas:
         self.weather_metering_point = weather_metering_point
         self.browser = mechanicalsoup.Browser()
         self.logged_in = False
+        self._get_response = None  # for debugging
+        self._login_response = None  # for debugging
+        self.customer_number = None
 
     def log_in(self):
         login_page = self.browser.get(self.login_url)
@@ -71,7 +74,8 @@ class Valpas:
     def get_temperature(self, begin: str, end: str):
         if not self.logged_in:
             self.log_in()
-        url = ('https://www.fortum.com/valpas/api/meteringPoints/WEATHER/{}/series'
+        url = ('https://www.fortum.com/valpas/api'
+               '/meteringPoints/WEATHER/{}/series'
                .format(self.weather_metering_point))
         response = self.browser.get(
             url,
